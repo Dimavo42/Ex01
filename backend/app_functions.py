@@ -6,6 +6,13 @@ df = pd.read_csv("data.csv")
 df = df.set_index("index")
 
 
+def get_all_items()->dict:
+    all_items = {}
+    for label, seria in df.iterrows():
+        all_items[label] = seria.to_dict()
+    return all_items
+
+
 def get_number_of_items(number_items:int)->dict:
     all_items = {}
     for label, seria in df.iloc[:number_items].iterrows():

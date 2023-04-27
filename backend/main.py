@@ -2,8 +2,21 @@ from fastapi import FastAPI
 from typing import Optional
 from pydantic import BaseModel
 import app_functions as local_db
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+origins = [
+    "http://localhost:3000"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 class ItemResponse(BaseModel):
@@ -62,8 +75,9 @@ async def get_item(
         item = local_db.get_maxuim_minium_price("min")
         item_response = ItemMaxMinResponse(item=item, method="GET")
         return item_response
-
-    return {"message": "Invalid request", "method": "GET"}
+    
+    all_items = local_db.get_all_items()
+    return ItemMaxMinResponse(item=all_items,method="GET")
 
 
 @app.get("/item/{item_id}")

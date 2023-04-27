@@ -72,7 +72,7 @@ def dafult_parmaters():
     Price_until = 1000000
     end_price = 3000000
     url = "https://www.yad2.co.il/realestate/forsale?propertyGroup=apartments&"
-    url += "city=5000"
+    url += "city=8300"
     url += f"&rooms={rooms_start}-{rooms_end}"
     url += f"&price={Price_until}-{end_price}"
     return url
@@ -99,7 +99,7 @@ with requests.session() as session:
     respones = session.get(url, headers=headers)
     page = bs(respones.text, "html.parser")
     scrapping_info = scrap_info(page)
-    pages_wanted: int = 6
+    pages_wanted: int = 8
     current_page: int = 0
     while next_page(page) and current_page < pages_wanted:
         respones = session.get(make_new_path(next_page(page)), headers=headers)

@@ -1,0 +1,53 @@
+
+.main-form {
+    margin: 20px;
+    padding: 12px 20px;
+    text-decoration-style: dashed;
+}
+.select-city {
+    margin-bottom: 20px;
+  }
+  
+  label {
+    margin-right: 10px;
+  }
+  
+  input[type='number'] {
+    margin-right: 10px;
+  }
+  
+  .select-room-size {
+    margin-bottom: 20px;
+  }
+  
+  .selecte-price-range {
+    margin-bottom: 20px;
+  }
+  
+  input[type='submit'] {
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  input[type='submit']:hover {
+    background-color: #45a049;
+  }
+  
+  h1 {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  
+  
+  
+  
+
+  
+  
+  
