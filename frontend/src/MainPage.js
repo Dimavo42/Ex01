@@ -29,6 +29,7 @@ function MainPage({apprtmentData,onSubmit,dataLoaded,cityName}){
             }
             validateInput(minimumPrice, maximumPrice, minimumRoom, maximumRoom);
             onSubmit({
+              "Request":"New_Table",
               citySelected,
               minimumRoom,
               maximumRoom,

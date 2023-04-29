@@ -3,13 +3,14 @@ import MainPage from './MainPage';
 import Navbar from './Navbar';
 import MaxMin from './maxMin';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import {fetchFormData,fetchFirstData }from './ApiHandler';
+import {fetchFormData,fetchFirstData,fetchMiniuim }from './ApiHandler';
 
 function App() {
   const [apartments, setApartmentData] = useState([]);
   const [submitedForm, setSubmitedForm] = useState({});
   const [dataLoaded, setDataLoaded] = useState(false);
   const [cityName,setCityName] = useState("");
+  const [singleApartmentRequest,setsingleApartmentRequest] = useState([]);
   useEffect(() => {
     async function fetchData() {
       if (!dataLoaded) {
@@ -18,11 +19,18 @@ function App() {
         setApartmentData(data);
         setDataLoaded(false);
       }
-      if (submitedForm.citySelected) {
+      if (submitedForm.Request == "New_Table") {
         setDataLoaded(true);
         setCityName(submitedForm.citySelected);
         const data = await fetchFormData(submitedForm);
         setApartmentData(data);
+        setDataLoaded(false);
+      }
+      if(submitedForm.Request == "Find_Miniume")
+      {
+        setDataLoaded(true);
+        const data = await fetchMiniuim();
+        setsingleApartmentRequest(data);
         setDataLoaded(false);
       }
     }
@@ -36,6 +44,7 @@ function App() {
   const handleSubmit = (formData) => {
     setSubmitedForm(formData);
   }
+  
 
 
   return (
@@ -43,7 +52,7 @@ function App() {
         <Navbar onNavbarClick={handleNavbarClick}/>
         <Routes>
           <Route path='/'  element={<MainPage apprtmentData={apartments} onSubmit={handleSubmit} dataLoaded={dataLoaded} cityName={cityName}/>} />
-          <Route path="max" element={<MaxMin cityName={cityName}/>}/>
+          <Route path="max" element={<MaxMin cityName={cityName} onSubmit={handleSubmit} dataLoaded={dataLoaded} apartmentData={singleApartmentRequest} />}/>
         </Routes>
       </BrowserRouter>
   );

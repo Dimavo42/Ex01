@@ -1,7 +1,7 @@
 
 
 async function fetchFirstData() {
-  const data = await fetchData("http://localhost:8000/item");
+  const data = await fetchGetDataNoParams("http://localhost:8000/item");
   return data;
 }
 
@@ -10,7 +10,12 @@ async function fetchFormData(params) {
   return data;
 }
 
-async function fetchData(endpoint) {
+async function fetchMiniuim(){
+  const data = await fetchGetDataNoParams("http://localhost:8000/item?min_item=true");
+  return data;
+}
+
+async function fetchGetDataNoParams(endpoint) {
   const url = new URL(endpoint);
   return fetch(url)
     .then((response) => response.json())
@@ -20,6 +25,7 @@ async function fetchData(endpoint) {
       return [];
     });
 }
+
 
 async function postData(endpoint, params = {}){
   const url = new URL(endpoint);
@@ -39,4 +45,4 @@ async function postData(endpoint, params = {}){
 
   
 
-export   { fetchFormData, fetchFirstData };
+export   { fetchFormData, fetchFirstData,fetchMiniuim };
