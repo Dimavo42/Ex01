@@ -1,7 +1,7 @@
 
 
 async function fetchFirstData() {
-  const data = await fetchGetDataNoParams("http://localhost:8000/item");
+  const data = await fetchDataAndExtrectValues("http://localhost:8000/item");
   return data;
 }
 
@@ -11,11 +11,11 @@ async function fetchFormData(params) {
 }
 
 async function fetchMiniuim(){
-  const data = await fetchGetDataNoParams("http://localhost:8000/item?min_item=true");
+  const data = await fetchDataAsIt("http://localhost:8000/item?min_item=true");
   return data;
 }
 
-async function fetchGetDataNoParams(endpoint) {
+async function fetchDataAndExtrectValues(endpoint) {
   const url = new URL(endpoint);
   return fetch(url)
     .then((response) => response.json())
@@ -25,6 +25,18 @@ async function fetchGetDataNoParams(endpoint) {
       return [];
     });
 }
+
+async function fetchDataAsIt(endpoint){
+  const url = new URL(endpoint);
+  return fetch(url)
+    .then((response) => response.json())
+    .then((data) => data.item)
+    .catch((error) => {
+      console.log("error have been fatched:", error);
+      return [];
+    });
+}
+
 
 
 async function postData(endpoint, params = {}){

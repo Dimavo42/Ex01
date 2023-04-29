@@ -1,8 +1,8 @@
 .max-min-container {
     background-color: #f5f5f5;
     padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 0 5px #ccc;
+    border-radius: 15px;
+    box-shadow: 0 0 5px #e3cbcb;
   }
   
   .max-min-container form {
@@ -20,6 +20,7 @@
     color: #fff;
     border: none;
     padding: 10px 20px;
+    margin-top: 15px;
     border-radius: 5px;
     cursor: pointer;
   }

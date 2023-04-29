@@ -3,7 +3,10 @@
     margin: 20px;
     padding: 12px 20px;
     text-decoration-style: dashed;
+    box-shadow: 0 0 5px #e3cbcb;
 }
+
+
 
 .select-city {
     margin-bottom: 20px;
@@ -28,8 +31,9 @@
   input[type='submit'] {
     background-color: #4CAF50;
     color: white;
-    padding: 12px 20px;
-    border: none;
+    margin-top: 10px;
+    padding: 15px 20px;
+    border: seagreen;
     border-radius: 4px;
     cursor: pointer;
     font-size: 16px;
