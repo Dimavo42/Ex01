@@ -4,6 +4,9 @@ import pandas as pd
 import re
 
 
+
+
+
 def next_page(soup):
     if not soup.find(
         "a",
@@ -11,7 +14,7 @@ def next_page(soup):
             "class": "internalLink nuxt-link-exact-active nuxt-link-active no-button pagination-nav text disabled"
         },
     ) and soup.find("div", {"class": "pagination clickable"}):
-        next_link = page.find(
+        next_link = soup.find(
             "a",
             {
                 "class": "internalLink nuxt-link-active no-button pagination-nav text active"
@@ -20,7 +23,7 @@ def next_page(soup):
         if next_link:
             return next_link.get("href")
         else:
-            next_link = page.find(
+            next_link = soup.find(
                 "a", {"class": "internalLink no-button pagination-nav text active"}
             )
             return next_link.get("href")
@@ -66,16 +69,27 @@ def remove_nonnumeric(s):
     return re.sub(r"\D", "", s)
 
 
-def dafult_parmaters():
-    rooms_start = 2
-    rooms_end = 5
-    Price_until = 1000000
-    end_price = 3000000
+def get_city(city):
+    dict_city={"TelAviv":"city=5000",
+               "Jerusalem":"city=3000",
+               "RishonLezion":"city=8300",
+               "Haifa":"city=4000"}
+    return dict_city.get(city)
+
+
+def create_url_parameters(params):
+    min_rooms = params["minimumRoom"]
+    max_rooms = params["maximumRoom"]
+    min_price = params["minimumPrice"]
+    max_price = params["maximumPrice"]
     url = "https://www.yad2.co.il/realestate/forsale?propertyGroup=apartments&"
-    url += "city=8300"
-    url += f"&rooms={rooms_start}-{rooms_end}"
-    url += f"&price={Price_until}-{end_price}"
+    url += get_city(params["citySelected"])
+    url += f"&rooms={min_rooms}-{max_rooms}"
+    url += f"&price={min_price}-{max_price}"
     return url
+
+
+
 
 
 def df_change_columes(df: pd.DataFrame):
@@ -86,6 +100,8 @@ def df_change_columes(df: pd.DataFrame):
     return df
 
 
+
+
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36",
     "Referer": "https://www.yad2.co.il",
@@ -94,24 +110,38 @@ headers = {
 }
 
 
-with requests.session() as session:
-    url = dafult_parmaters()
-    respones = session.get(url, headers=headers)
-    page = bs(respones.text, "html.parser")
-    scrapping_info = scrap_info(page)
-    pages_wanted: int = 8
-    current_page: int = 0
-    while next_page(page) and current_page < pages_wanted:
-        respones = session.get(make_new_path(next_page(page)), headers=headers)
+
+
+def start_pulling_data(params:dict ={}):
+    with requests.session() as session:
+        url = create_url_parameters(params)
+        respones = session.get(url, headers=headers)
         page = bs(respones.text, "html.parser")
-        info = scrap_info(page)
-        scrapping_info["city"].extend(info["city"])
-        scrapping_info["price"].extend(info["price"])
-        scrapping_info["size"].extend(info["size"])
-        scrapping_info["rooms"].extend(info["rooms"])
-        scrapping_info["floor"].extend(info["floor"])
-        current_page += 1
-    df = pd.DataFrame(scrapping_info)
-    df = df_change_columes(df)
-    df.index.name = "index"
-    df.to_csv("data.csv")
+        scrapping_info = scrap_info(page)
+        pages_wanted: int = params["numberPages"]
+        current_page: int = 0
+        while next_page(page) and current_page < pages_wanted:
+            respones = session.get(make_new_path(next_page(page)), headers=headers)
+            page = bs(respones.text, "html.parser")
+            info = scrap_info(page)
+            scrapping_info["city"].extend(info["city"])
+            scrapping_info["price"].extend(info["price"])
+            scrapping_info["size"].extend(info["size"])
+            scrapping_info["rooms"].extend(info["rooms"])
+            scrapping_info["floor"].extend(info["floor"])
+            current_page += 1
+        df = pd.DataFrame(scrapping_info)
+        df = df_change_columes(df)
+        df.index.name = "index"
+        df.to_csv(params["citySelected"]+".csv")
+        return {"message": "Finshed"}
+
+
+
+dafult_url_parmaters = {"citySelected":"TelAviv",
+                        "minimumRoom":2,
+                        "maximumRoom":5,
+                        "minimumPrice":1000000,
+                        "maximumPrice":3000000,
+                        "numberPages":5}
+start_pulling_data(dafult_url_parmaters)

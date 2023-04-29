@@ -4,6 +4,7 @@
     padding: 12px 20px;
     text-decoration-style: dashed;
 }
+
 .select-city {
     margin-bottom: 20px;
   }
@@ -39,11 +40,10 @@
   }
   
   h1 {
-    font-size: 24px;
-    font-weight: bold;
+    font-size: 2em;
+    text-align: center;
     margin-bottom: 20px;
   }
-  
   
   
   

@@ -3,11 +3,12 @@ from typing import Optional
 from pydantic import BaseModel
 import app_functions as local_db
 from fastapi.middleware.cors import CORSMiddleware
+from pulldata import start_pulling_data
 
 app = FastAPI()
 
 origins = [
-    "http://localhost:3000"
+    "http://localhost:3000",
 ]
 
 app.add_middleware(
@@ -28,6 +29,13 @@ class ItemMaxMinResponse(BaseModel):
     item: dict
     method: str
 
+class DataModel(BaseModel):
+    citySelected: str = ''
+    minimumRoom: int = 0
+    maximumRoom: int = 0
+    minimumPrice: int = 0 
+    maximumPrice: int = 0 
+    numberPages:int = 0
 
 @app.get("/")
 async def get_root():
@@ -94,3 +102,16 @@ async def update_item(item_id: int, updated_item: dict):
         return {"message": "Item not found"}
     local_db.update_item(item_id, updated_item)
     return {"message": "Updated"}
+
+
+@app.post("/newtable")
+async def get_new_table(params: DataModel):
+    dict_of_parmas = params.dict()
+    scrap_data = start_pulling_data(dict_of_parmas)
+    return ItemMaxMinResponse(item=local_db.get_all_items(dict_of_parmas["citySelected"]+".csv"),method="POST")
+
+
+
+
+
+

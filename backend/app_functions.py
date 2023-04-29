@@ -2,11 +2,15 @@ import pandas as pd
 
 
 
-df = pd.read_csv("data.csv")
-df = df.set_index("index")
+def set_table_name(table_name:str="TelAviv.csv"):
+    df = pd.read_csv(table_name)
+    df.set_index("index")
+    return df
 
+df = set_table_name()
 
-def get_all_items()->dict:
+def get_all_items(table_name:str ="TelAviv.csv")->dict:
+    df = set_table_name(table_name)
     all_items = {}
     for label, seria in df.iterrows():
         all_items[label] = seria.to_dict()
@@ -46,5 +50,6 @@ def get_item(item_id: int)->dict:
 
 def update_item(item_id: int, updated_item: dict):
     df.loc[item_id] = updated_item
+
 
 

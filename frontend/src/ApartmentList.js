@@ -1,28 +1,27 @@
 import React, { useState, useEffect } from 'react';
 
 
-function ApartmentList({setApartmentsAPI}) {
-  const [apartments, setApartments] = useState([]);
-
-  useEffect(() => {
-    fetch('http://localhost:8000/item/')
-      .then(response => response.json())
-      .then((data) => {
-        setApartments(Object.values(data.item));
-        setApartmentsAPI(Object.values(data.item))
-      }).catch((err)=> console.log(err));
-  }, []);
+function ApartmentList({apartmentsData,dataLoaded,cityName}) {
+  
+  const [apartments,setApartments] = useState([]);
+  useEffect(()=>{
+    setApartments(apartmentsData);
+  }, [apartmentsData]);
 
   const handleShowMap = (location) => {
      const encodedLocation = encodeURIComponent(location);
      const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedLocation}`;
      window.location.href = googleMapsUrl;
   }
+  if(dataLoaded)
+  {
+    return (<h1>Loading {cityName}</h1>);
+  }
 
   return (
     <div>
-      <h1>List of Apartments</h1>
-      {apartments.length > 0 && RenderTable(apartments,handleShowMap)}
+      <h1>List of apartments for {cityName}</h1>
+      {RenderTable(apartments,handleShowMap)}
     </div>
   );
 }
