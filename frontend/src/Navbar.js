@@ -10,7 +10,7 @@ function Navbar({onNavbarClick}) {
           <Link onClick={onNavbarClick} to="/">Home</Link>
           </li>
         <li className="Navbar-item">
-          <Link onClick={onNavbarClick} to="/max">Max</Link>
+          <Link onClick={onNavbarClick} to="/max">Opeartions Functions</Link>
         </li>
         <li className="Navbar-item"><a href="#">Contact</a></li>
       </ul>

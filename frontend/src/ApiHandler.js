@@ -1,36 +1,41 @@
 
 
 async function fetchFirstData() {
-  const data = await fetchDataAndExtrectValues("http://localhost:8000/item");
+  const data = await fetchDataAndExtractValues("http://localhost:8000/item");
   return data;
 }
 
-async function fetchFormData(params) {
+async function fetchMainPageData(params) {
   const data = await postData("http://localhost:8000/newtable",params);
   return data;
 }
 
-async function fetchMiniuim(){
-  const data = await fetchDataAsIt("http://localhost:8000/item?min_item=true");
+async function fetchOpreationsMiniuim(){
+  const data = await fetchDataAndExtractValues("http://localhost:8000/item?min_item=true");
+  return data;
+}
+async function fetchOpreationsMaxuim(){
+  const data = await fetchDataAndExtractValues("http://localhost:8000/item?max_item=true");
   return data;
 }
 
-async function fetchDataAndExtrectValues(endpoint) {
-  const url = new URL(endpoint);
-  return fetch(url)
-    .then((response) => response.json())
-    .then((data) => Object.values(data.item))
-    .catch((error) => {
-      console.log("error have been fatched:", error);
-      return [];
-    });
+async function fetchOpreationBetweenPriceRange(params){
+  const data = await fetchDataAndExtractValues(`http://localhost:8000/item?price_start=${params.minPrice}&price_end=${params.maxPrice}`);
+  return data;
 }
 
-async function fetchDataAsIt(endpoint){
+async function fetchOpreationNumberOfApartments(params){
+  const data = await fetchDataAndExtractValues(`http://localhost:8000/item?number_items=${params.numApartments}`);
+  return data;
+}
+
+
+
+async function fetchDataAndExtractValues(endpoint) {
   const url = new URL(endpoint);
   return fetch(url)
     .then((response) => response.json())
-    .then((data) => data.item)
+    .then((data) => Object.values(data.number_of_items))
     .catch((error) => {
       console.log("error have been fatched:", error);
       return [];
@@ -45,9 +50,9 @@ async function postData(endpoint, params = {}){
     method: 'POST',
     headers: {
       "Content-Type": "application/json"},
-    body: JSON.stringify(params),
+    body: JSON.stringify(params)
   }).then((response) => response.json())
-  .then((data) => Object.values(data.item))
+  .then((data) => Object.values(data.number_of_items))
   .catch((error) => {
     console.log("error have been fatched:", error);
     return [];
@@ -57,4 +62,4 @@ async function postData(endpoint, params = {}){
 
   
 
-export   { fetchFormData, fetchFirstData,fetchMiniuim };
+export   { fetchMainPageData , fetchFirstData,fetchOpreationsMiniuim,fetchOpreationsMaxuim,fetchOpreationBetweenPriceRange,fetchOpreationNumberOfApartments };

@@ -29,7 +29,7 @@ function MainPage({apprtmentData,onSubmit,dataLoaded,cityName}){
             }
             validateInput(minimumPrice, maximumPrice, minimumRoom, maximumRoom);
             onSubmit({
-              "Request":"New_Table",
+              "Request":"table",
               citySelected,
               minimumRoom,
               maximumRoom,
@@ -45,31 +45,71 @@ function MainPage({apprtmentData,onSubmit,dataLoaded,cityName}){
         <div className="main-form">
         <h1>Search for differnet appertments</h1>
         <form onSubmit={handleSubmited}>
-                <div className="select-city">
-                    <label htmlFor="select-city" >Chooese City</label>
-                    <select value={citySelected} 
-                    onChange={(event)=>setCitySelected(event.target.value)}>
-                        <option value="TelAviv">TelAviv</option>
-                        <option value="RishonLezion">Rishon-Lezion</option>
-                        <option value="Jerusalem">Jerusalem</option>
-                        <option value="Haifa">Haifa</option>
-                    </select>
-                </div>
-                <div className="select-room-size">
-                    <label htmlFor="select-room-size" >minimum rooms</label>
-                        <input id="minimum-rooms-input" 
-                        type="number" 
-                        value={minimumRoom}
-                        onChange={(event)=> setMinimumRoom(event.target.value)}>
-                        </input>
-                    <label htmlFor="select-room-size" >maxiumum rooms</label>
-                        <input id="maximum-rooms-input" 
-                        type="number" 
-                        value={maximumRoom}
-                        onChange={(event)=> setMaximumRoom(event.target.value) }>
-                        </input>
-                </div>
-                <div className="selecte-price-range">
+                <SelectCity
+                currentOperation={citySelected}
+                setCurrentOperation={setCitySelected}
+                />
+                <SelecteRoomSize
+                minimumRoom={minimumRoom}
+                maximumRoom={maximumRoom}
+                setMinimumRoom={setMinimumRoom}
+                setMaximumRoom={setMaximumRoom}
+                 />
+                <SelectePriceRange 
+                minimumPrice={minimumPrice}
+                maximumPrice={maximumPrice}
+                setMinimumPrice={setMinimumPrice}
+                setMaxiumumPrice={setMaxiumumPrice}
+                />
+                <SelecteNumberOfPages
+                numberPages={numberPages}
+                setNumberPages={setNumberPages}
+                 />
+                <input type="submit" value="Search"></input>
+            </form>
+            <ApartmentList apartmentsData={apprtmentData} dataLoaded={dataLoaded} cityName={cityName} />
+        </div>
+       
+    );
+}
+
+function SelectCity({ currentOperation, setCurrentOperation }) {
+    return (
+        <div className="select-city">
+        <label htmlFor="select-city" >Chooese City</label>
+        <select value={currentOperation} 
+        onChange={(event)=>setCurrentOperation(event.target.value)}>
+            <option value="TelAviv">TelAviv</option>
+            <option value="RishonLezion">Rishon-Lezion</option>
+            <option value="Jerusalem">Jerusalem</option>
+            <option value="Haifa">Haifa</option>
+        </select>
+    </div>
+    );
+}
+
+function SelecteRoomSize({minimumRoom,maximumRoom,setMinimumRoom,setMaximumRoom}){
+   return(
+        <div className="select-room-size">
+        <label htmlFor="select-room-size" >minimum rooms</label>
+            <input id="minimum-rooms-input" 
+            type="number" 
+            value={minimumRoom}
+            onChange={(event)=> setMinimumRoom(event.target.value)}>
+            </input>
+        <label htmlFor="select-room-size" >maxiumum rooms</label>
+            <input id="maximum-rooms-input" 
+            type="number" 
+            value={maximumRoom}
+            onChange={(event)=> setMaximumRoom(event.target.value) }>
+            </input>
+        </div>
+   );
+}
+
+function SelectePriceRange({minimumPrice,maximumPrice,setMinimumPrice,setMaxiumumPrice}){
+    return(
+        <div className="selecte-price-range">
                         <label htmlFor="selecte-price-range" >minimum price</label>
                             <input id="minimum-price-input" 
                             type="number" 
@@ -82,21 +122,24 @@ function MainPage({apprtmentData,onSubmit,dataLoaded,cityName}){
                             onChange={(event)=>setMaxiumumPrice(event.target.value)}>
                             </input>
                 </div>
-                <div className='select-number-pages'>
+    );
+
+}
+
+function SelecteNumberOfPages({numberPages,setNumberPages}){
+    return(
+        <div className='select-number-pages'>
                     <label htmlFor="selecte-number-pages" >selecte-number-pages</label>
                         <input id="number-of-pages" type="number" 
                             value={numberPages}
                             onChange={(event)=>setNumberPages(event.target.value)}>
                             </input>
                 </div>
-                <input type="submit" value="Search"></input>
-            </form>
-            <ApartmentList apartmentsData={apprtmentData} dataLoaded={dataLoaded} cityName={cityName} />
-        </div>
-       
     );
-
 }
+
+
+
 
 
 export default MainPage;

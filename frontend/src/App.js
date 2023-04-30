@@ -1,37 +1,60 @@
 import React, { useEffect, useState } from 'react';
 import MainPage from './MainPage';
 import Navbar from './Navbar';
-import MaxMin from './maxMin';
+import OpeartionsPage from './OpeartionsPage';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import {fetchFormData,fetchFirstData,fetchMiniuim }from './ApiHandler';
+import {fetchMainPageData,fetchFirstData,fetchOpreationsMiniuim,fetchOpreationsMaxuim,fetchOpreationBetweenPriceRange,fetchOpreationNumberOfApartments }from './ApiHandler';
 
 function App() {
-  const [apartments, setApartmentData] = useState([]);
+  const [apartmentsForMainPage, setApartmentsForMainPage] = useState([]);
   const [submitedForm, setSubmitedForm] = useState({});
   const [dataLoaded, setDataLoaded] = useState(false);
   const [cityName,setCityName] = useState("");
-  const [singleApartmentRequest,setsingleApartmentRequest] = useState([]);
+  const [apartmentRequestData,setApartmentRequestData] = useState([]);
   useEffect(() => {
     async function fetchData() {
       if (!dataLoaded) {
         const data = await fetchFirstData();
         setCityName("TelAviv")
-        setApartmentData(data);
+        setApartmentsForMainPage(data);
         setDataLoaded(false);
       }
-      if (submitedForm.Request == "New_Table") {
-        setDataLoaded(true);
-        setCityName(submitedForm.citySelected);
-        const data = await fetchFormData(submitedForm);
-        setApartmentData(data);
-        setDataLoaded(false);
-      }
-      if(submitedForm.Request == "Find_Miniume")
-      {
-        setDataLoaded(true);
-        const data = await fetchMiniuim();
-        setsingleApartmentRequest(data);
-        setDataLoaded(false);
+      switch (submitedForm.Request) {
+        case "table":
+          setDataLoaded(true);
+          setCityName(submitedForm.citySelected);
+          const tableData = await fetchMainPageData(submitedForm);
+          setApartmentsForMainPage(tableData);
+          setDataLoaded(false);
+          break;
+        case "minimum":
+          setDataLoaded(true);
+          const minimumData  = await fetchOpreationsMiniuim();
+          setApartmentRequestData(minimumData);
+          setDataLoaded(false);
+          break;
+        case "maximum":
+          setDataLoaded(true);
+          const maxuimData  = await fetchOpreationsMaxuim();
+          setApartmentRequestData(maxuimData);
+          setDataLoaded(false);
+          break;
+        case "price-between":
+          setDataLoaded(true);
+          const paramsPriceBetween = {"minPrice":submitedForm.minPrice ,"maxPrice":submitedForm.maxPrice};
+          const priceRange = await fetchOpreationBetweenPriceRange(paramsPriceBetween);
+          setApartmentRequestData(priceRange);
+          setDataLoaded(false);
+          break;
+        case "number-of-apartments":
+          setDataLoaded(true);
+          const paramsNumberOfApartments = {"numApartments":submitedForm.numApartments};
+          const numberOfApartments = await fetchOpreationNumberOfApartments(paramsNumberOfApartments);
+          setApartmentRequestData(numberOfApartments);
+          setDataLoaded(false);
+          break;
+        default:
+          // handle default case
       }
     }
     fetchData();
@@ -51,8 +74,8 @@ function App() {
     <BrowserRouter>
         <Navbar onNavbarClick={handleNavbarClick}/>
         <Routes>
-          <Route path='/'  element={<MainPage apprtmentData={apartments} onSubmit={handleSubmit} dataLoaded={dataLoaded} cityName={cityName}/>} />
-          <Route path="max" element={<MaxMin cityName={cityName} onSubmit={handleSubmit} dataLoaded={dataLoaded} apartmentData={singleApartmentRequest} />}/>
+          <Route path='/'  element={<MainPage apprtmentData={apartmentsForMainPage} onSubmit={handleSubmit} dataLoaded={dataLoaded} cityName={cityName}/>} />
+          <Route path="max" element={<OpeartionsPage cityName={cityName} onSubmit={handleSubmit} apartmentData={apartmentRequestData} />}/>
         </Routes>
       </BrowserRouter>
   );

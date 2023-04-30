@@ -25,10 +25,6 @@ class ItemResponse(BaseModel):
     method: str
 
 
-class ItemMaxMinResponse(BaseModel):
-    item: dict
-    method: str
-
 class DataModel(BaseModel):
     citySelected: str = ''
     minimumRoom: int = 0
@@ -76,16 +72,16 @@ async def get_item(
 
     if max_item:
         item = local_db.get_maxuim_minium_price("max")
-        item_response = ItemMaxMinResponse(item=item, method="GET")
+        item_response = ItemResponse(number_of_items=item, method="GET")
         return item_response
 
     if min_item:
         item = local_db.get_maxuim_minium_price("min")
-        item_response = ItemMaxMinResponse(item=item, method="GET")
+        item_response = ItemResponse(number_of_items=item, method="GET")
         return item_response
     
     all_items = local_db.get_all_items()
-    return ItemMaxMinResponse(item=all_items,method="GET")
+    return ItemResponse(number_of_items=all_items,method="GET")
 
 
 @app.get("/item/{item_id}")
@@ -108,7 +104,7 @@ async def update_item(item_id: int, updated_item: dict):
 async def get_new_table(params: DataModel):
     dict_of_parmas = params.dict()
     scrap_data = start_pulling_data(dict_of_parmas)
-    return ItemMaxMinResponse(item=local_db.get_all_items(dict_of_parmas["citySelected"]+".csv"),method="POST")
+    return ItemResponse(number_of_items=local_db.get_all_items(dict_of_parmas["citySelected"]+".csv"),method="POST")
 
 
 

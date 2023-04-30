@@ -33,9 +33,14 @@ def get_between_start_end(start: int, end: int, colume_name: str)->dict:
 
 
 def get_maxuim_minium_price(user_request: str)->dict:
+    format_dict = {} 
     if "max" == user_request:
-        return df.loc[df["price"].idxmax()].to_dict()
-    return df.loc[df["price"].idxmin()].to_dict()
+        max_user = df.loc[df["price"].idxmax()].to_dict()
+        format_dict[max_user["index"]] = max_user
+    else:
+       min_user =  df.loc[df["price"].idxmin()].to_dict()
+       format_dict[min_user["index"]] = min_user
+    return format_dict
 
 
 def find_item(item_id: int)->bool:
