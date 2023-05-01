@@ -12,7 +12,7 @@ function validateInput(minimumPrice,maximumPrice,minimumRoom,maximumRoom){
       }
 }
 
-function MainPage({apprtmentData,onSubmit,dataLoaded,cityName}){
+function MainPage({apprtmentData,onSubmit,dataLoaded,cityName,SelectedToFavorites}){
     const[citySelected, setCitySelected] = useState('TelAviv');
     const[minimumRoom,setMinimumRoom] = useState(2);
     const[maximumRoom,setMaximumRoom] = useState(5);
@@ -67,7 +67,7 @@ function MainPage({apprtmentData,onSubmit,dataLoaded,cityName}){
                  />
                 <input type="submit" value="Search"></input>
             </form>
-            <ApartmentList apartmentsData={apprtmentData} dataLoaded={dataLoaded} cityName={cityName} />
+            <ApartmentList apartmentsData={apprtmentData} dataLoaded={dataLoaded} cityName={cityName} SelectedToFavorites={SelectedToFavorites} />
         </div>
        
     );

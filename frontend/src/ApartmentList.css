@@ -1,0 +1,49 @@
+
+.select-container {
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+  
+  .btn-secondary {
+    display: inline-block;
+    padding: 10px;
+    background-color: #007bff60;
+    align-items: center;
+    border:0ic;
+    margin-top: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    cursor: pointer;
+  }
+  
+  .btn-secondary:hover {
+    background-color: #2b6cb0;
+    border-color: #2b6cb0;
+  }
+  
+  .mr{
+      margin-right: 20px; 
+      padding: 10px;
+  }
+  
+  .link {
+    background-color: #007bff60;
+    align-items: center;
+    padding: 10px;
+    border-radius: 5px;
+    border:0ic;
+  }
+  
+  .link:hover{
+    background-color: #2b6cb0;
+    border-color: #2b6cb0;
+  }
+    
+    
+    
+    
+    
+    
+    

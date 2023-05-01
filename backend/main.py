@@ -21,7 +21,8 @@ app.add_middleware(
 
 
 class ItemResponse(BaseModel):
-    number_of_items: dict
+    response_status :Optional[dict]
+    number_of_items: Optional[dict]
     method: str
 
 
@@ -55,7 +56,7 @@ async def get_item(
 ):
     if number_items is not None:
         if not local_db.find_item(number_items):
-            return {"message": "Item not found"}
+            return ItemResponse(response_status={"message": "Item not found"},method="GET")
         all_items = local_db.get_number_of_items(number_items)
         item_response = ItemResponse(number_of_items=all_items, method="GET")
         return item_response
@@ -87,17 +88,17 @@ async def get_item(
 @app.get("/item/{item_id}")
 async def get_item(item_id: int):
     if not local_db.find_item(item_id):
-        return {"message": "Item not found"}
+        return ItemResponse(response_status={"message": "Item not found"},method="GET")
     item = local_db.get_item(item_id)
-    return {"item": item}
+    return ItemResponse(number_of_items=item,method="GET")
 
 
 @app.post("/item/{item_id}")
 async def update_item(item_id: int, updated_item: dict):
     if not local_db.find_item(item_id):
-        return {"message": "Item not found"}
+        return ItemResponse(response_status={"message": "Item not found"},method="GET")
     local_db.update_item(item_id, updated_item)
-    return {"message": "Updated"}
+    return ItemResponse(response_status={"message": "Updated"},method="GET")
 
 
 @app.post("/newtable")

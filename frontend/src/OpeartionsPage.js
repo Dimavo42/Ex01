@@ -78,6 +78,7 @@ function RenderTable(apartments){
                     <tr>
                         <th className="sticky-header">#</th>
                         <th className="sticky-header">City</th>
+                        <th className="sticky-header">Price</th>
                         <th className="sticky-header">Size</th>
                         <th className="sticky-header">Rooms</th>
                         <th className="sticky-header">Floor</th>
@@ -100,17 +101,6 @@ function RenderTable(apartments){
     );
 }
 
-function RenderElement(apprtment){
-    return (
-        <div>
-            <p>price: {apprtment.price}</p>
-            <p>city: {apprtment.city}</p>
-            <p>rooms: {apprtment.rooms}</p>
-            <p>size: {apprtment.size}</p>
-            <p>floor: {apprtment.floor}</p>              
-        </div>
-    );
-}
 
 function SelectOperation({ currentOperation, setCurrentOperation }) {
     return (
