@@ -1,6 +1,6 @@
-import React from 'react';
+import React from "react";
 
-function Favorites({ selectedApartments }) {
+export default function Favorites({ selectedApartments }) {
   return selectedApartments.length > 0 ? (
     <div>
       <h1>List of Favorites</h1>
@@ -21,4 +21,4 @@ function Favorites({ selectedApartments }) {
   );
 }
 
-export default Favorites;
+

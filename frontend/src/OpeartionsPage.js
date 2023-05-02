@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './OpeartionsPage.css';
 import './Table.css';
 
-function OpeartionsPage({cityName,onSubmit,apartmentData}){
+export default function OpeartionsPage({cityName,onSubmit,apartmentData}){
     const [isRequestGivin, setIsRequestGivin] = useState("");
     const [appData,setAppData] = useState([]);
     const[currentOperation,setCurrentOperation] = useState("minimum");
@@ -157,4 +157,3 @@ function NumberOfApartments({ numApartments, setNumApartments }) {
 
 
 
-export default OpeartionsPage;

@@ -3,7 +3,7 @@ import './Table.css';
 import './ApartmentList.css';
 import { Link} from 'react-router-dom';
 
-function ApartmentList({apartmentsData,dataLoaded,cityName,SelectedToFavorites}) {
+export default function ApartmentList({apartmentsData,dataLoaded,cityName,SelectedToFavorites}) {
   
   const [apartments,setApartments] = useState([]);
   const [selectEnabled, setSelectEnabled] = useState(false);
@@ -36,13 +36,21 @@ function ApartmentList({apartmentsData,dataLoaded,cityName,SelectedToFavorites})
       {
         return apartment;
       }
+      return null;
     });
     setSelected(currentSelectedApartments);
   };
 
   const handleGetAllSelectedApartment = ()=>{
     SelectedToFavorites(selected);
-  };
+    const updatedApartments = apartments.map((apartment) => {
+      return {
+        ...apartment,
+        selected: false
+      };
+    });
+    setApartments(updatedApartments);
+  }
 
   return (
     <div className="select-container">
@@ -106,6 +114,6 @@ function RenderTable(apartments,handleShowMap,selectEnabled,handleSelectApartmen
 
 
 
-export default ApartmentList;
+
 
 
