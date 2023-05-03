@@ -98,7 +98,7 @@ async def update_item(item_id: int, updated_item: dict):
     if not local_db.find_item(item_id):
         return ItemResponse(response_status={"message": "Item not found"},method="GET")
     local_db.update_item(item_id, updated_item)
-    return ItemResponse(response_status={"message": "Updated"},method="GET")
+    return ItemResponse(response_status={"message": "Updated"},method="POST")
 
 
 @app.post("/newtable")
@@ -106,6 +106,10 @@ async def get_new_table(params: DataModel):
     dict_of_parmas = params.dict()
     scrap_data = start_pulling_data(dict_of_parmas)
     return ItemResponse(number_of_items=local_db.get_all_items(dict_of_parmas["citySelected"]+".csv"),method="POST")
+
+
+
+
 
 
 

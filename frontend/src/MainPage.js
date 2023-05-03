@@ -13,7 +13,7 @@ export default function MainPage({
   onSubmit,
   dataLoaded,
   cityName,
-  SelectedToFavorites,
+  sendToFavorites,
 }) {
   const [citySelected, setCitySelected] = useState("TelAviv");
   const [minimumRoom, setMinimumRoom] = useState(2);
@@ -73,7 +73,8 @@ export default function MainPage({
         apartmentsData={apprtmentData}
         dataLoaded={dataLoaded}
         cityName={cityName}
-        SelectedToFavorites={SelectedToFavorites}
+        sendToFavorites={sendToFavorites}
+        onSubmit={onSubmit}
       />
     </div>
   );
@@ -161,5 +162,8 @@ function SelecteNumberOfPages({ numberPages, setNumberPages }) {
     </div>
   );
 }
+
+
+
 
 

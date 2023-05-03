@@ -35,6 +35,11 @@ export async function fetchOpreationNumberOfApartments(params) {
   return data;
 }
 
+export async function updateApartmentsDataAPI(params,index){
+  const result =  await postData(`http://localhost:8000/item/${index}`,params);
+  return result;
+}
+
 async function fetchDataAndExtractValues(endpoint) {
   const url = new URL(endpoint);
   return fetch(url)
@@ -56,9 +61,17 @@ async function postData(endpoint, params = {}) {
     body: JSON.stringify(params),
   })
     .then((response) => response.json())
-    .then((data) => Object.values(data.number_of_items))
+    .then((data) => {
+      if (data.number_of_items) {
+        return Object.values(data.number_of_items);
+      } else if (data.response_status) {
+        return data.message;
+      }
+      return data;
+    })
     .catch((error) => {
       console.log("error have been fatched:", error);
       return [];
     });
 }
+

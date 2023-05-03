@@ -11,22 +11,23 @@ import {
   fetchOpreationsMaxuim,
   fetchOpreationBetweenPriceRange,
   fetchOpreationNumberOfApartments,
+  updateApartmentsDataAPI
 } from "./ApiHandler";
 
 export default function App() {
   const [apartmentsForMainPage, setApartmentsForMainPage] = useState([]);
-  const [submitedForm, setSubmitedForm] = useState({});
+  const [submitedRequest, setSubmitedRequest] = useState({});
   const [dataLoaded, setDataLoaded] = useState(false);
   const [cityName, setCityName] = useState("");
   const [apartmentRequestData, setApartmentRequestData] = useState([]);
   const [selectedToFavorites, setSelectedToFavorites] = useState([]);
   useEffect(() => {
-    if (submitedForm.Request) {
+    if (submitedRequest.Request) {
       fetchDataBySubmitedForm({
         setDataLoaded,
         setApartmentsForMainPage,
         setApartmentRequestData,
-        submitedForm,
+        submitedRequest,
         setCityName,
       });
       return;
@@ -36,14 +37,14 @@ export default function App() {
       setCityName,
       setApartmentsForMainPage,
     });
-  }, [submitedForm]);
+  }, [submitedRequest]);
   const handleNavbarClick = () => {
     const currentPath = window.location.pathname;
     if (currentPath === "/") {
     }
   };
   const handleSubmit = (formData) => {
-    setSubmitedForm(formData);
+    setSubmitedRequest(formData);
   };
 
   return (
@@ -58,7 +59,7 @@ export default function App() {
               onSubmit={handleSubmit}
               dataLoaded={dataLoaded}
               cityName={cityName}
-              SelectedToFavorites={setSelectedToFavorites}
+              sendToFavorites={setSelectedToFavorites}
             />
           }
         />
@@ -74,7 +75,12 @@ export default function App() {
         />
         <Route
           path="favorites"
-          element={<Favorites selectedApartments={selectedToFavorites} />}
+          element={
+            <Favorites
+              selectedApartments={selectedToFavorites}
+              setSelectedToFavorites={setSelectedToFavorites}
+            />
+          }
         ></Route>
       </Routes>
     </BrowserRouter>
@@ -103,14 +109,14 @@ async function fetchDataBySubmitedForm({
   setCityName,
   setApartmentsForMainPage,
   setApartmentRequestData,
-  submitedForm,
+  submitedRequest,
 }) {
   try {
     setDataLoaded(true);
-    switch (submitedForm.Request) {
+    switch (submitedRequest.Request) {
       case "table":
-        setCityName(submitedForm.citySelected);
-        const tableData = await fetchMainPageData(submitedForm);
+        setCityName(submitedRequest.citySelected);
+        const tableData = await fetchMainPageData(submitedRequest);
         setApartmentsForMainPage(tableData);
         break;
       case "minimum":
@@ -123,8 +129,8 @@ async function fetchDataBySubmitedForm({
         break;
       case "price-between":
         const paramsPriceBetween = {
-          minPrice: submitedForm.minPrice,
-          maxPrice: submitedForm.maxPrice,
+          minPrice: submitedRequest.minPrice,
+          maxPrice: submitedRequest.maxPrice,
         };
         const priceRange = await fetchOpreationBetweenPriceRange(
           paramsPriceBetween
@@ -133,14 +139,26 @@ async function fetchDataBySubmitedForm({
         break;
       case "number-of-apartments":
         const paramsNumberOfApartments = {
-          numApartments: submitedForm.numApartments,
+          numApartments: submitedRequest.numApartments,
         };
         const numberOfApartments = await fetchOpreationNumberOfApartments(
           paramsNumberOfApartments
         );
         setApartmentRequestData(numberOfApartments);
         break;
+      case "update-value":
+        const valueToUpdate = {
+          city:submitedRequest.city,
+          price:parseInt(submitedRequest.price),
+          size:submitedRequest.size,
+          rooms:parseInt(submitedRequest.rooms),
+          floor:submitedRequest.floor
+        }
+        await updateApartmentsDataAPI(valueToUpdate,submitedRequest.index);
+        setDataLoaded(false);
+          break;
       default:
+        break;
       // handle default case
     }
   } catch (error) {
