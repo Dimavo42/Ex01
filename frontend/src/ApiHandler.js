@@ -35,6 +35,11 @@ export async function fetchOpreationNumberOfApartments(params) {
   return data;
 }
 
+export async function fetchOpreationGetApartmentByIndex(params){
+  const data = await fetchDataAndExtractValues(`http://localhost:8000/item/${params}`);
+  return data;
+}
+
 export async function updateApartmentsDataAPI(params,index){
   const result =  await postData(`http://localhost:8000/item/${index}`,params);
   return result;
@@ -74,4 +79,3 @@ async function postData(endpoint, params = {}) {
       return [];
     });
 }
-

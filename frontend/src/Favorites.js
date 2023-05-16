@@ -1,41 +1,71 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Favorites.css";
 
 export default function Favorites({
   selectedApartments,
   setSelectedToFavorites,
 }) {
-  const [removeEnabled, setRemoveEnabled] = useState(false);
+  
+  const [favoritesState,setFavoritesState]= useState({
+    favoriteList :[],
+    removeEnabled:false
+  });
+
+  useEffect(() => {
+    if (selectedApartments) {
+      const apartmentsUpdate = selectedApartments.map((apartment) => ({
+        ...apartment,
+        selected: false
+      }));
+      setFavoritesState((prevState) => ({
+        ...prevState,
+        favoriteList: apartmentsUpdate
+      }));
+    }
+  }, [selectedApartments]);
+
+  const handleInputChange = (fieldName,value)=>{
+    setFavoritesState((prevState)=>({
+      ...prevState,
+      [fieldName]:value
+    }));
+  }
 
   const handleRemoveFromFavorites = () => {
-    const filteredApartments = selectedApartments.filter(
-      (apartment) => apartment.selected
+    const filteredApartments = favoritesState.favoriteList.filter(
+      (apartment) => !apartment.selected
     );
-    setSelectedToFavorites(filteredApartments);
-    setRemoveEnabled(!removeEnabled);
+    setSelectedToFavorites("selectedToFavorites",filteredApartments);
+    setFavoritesState((prevState)=>({
+      favoriteList:filteredApartments,
+      removeEnabled:!prevState.removeEnabled
+    }));
   };
 
   const handleCheckboxChange = (index) => {
-    const updatedApartments = [...selectedApartments];
+    const updatedApartments = [...favoritesState.favoriteList];
     updatedApartments[index] = {
       ...updatedApartments[index],
       selected: !updatedApartments[index].selected,
     };
-    setSelectedToFavorites(updatedApartments);
+    setFavoritesState((prevState)=>({
+      ...prevState,
+      favoriteList:updatedApartments
+    }));
   };
-  return selectedApartments.length > 0 ? (
+  return favoritesState.favoriteList.length > 0 ? (
     <div className="favorite-container">
       <h1>List of Favorites</h1>
-      <button onClick={() => setRemoveEnabled(!removeEnabled)}>
-        {removeEnabled ? "Cancel" : "Remove"}
+      <button onClick={() => handleInputChange("removeEnabled",!favoritesState.removeEnabled)}>
+        {favoritesState.removeEnabled ? "Cancel" : "Remove"}
       </button>
-      {removeEnabled && (
+      {favoritesState.removeEnabled && (
         <button onClick={handleRemoveFromFavorites}>Confirm Removal</button>
       )}
       <ul>
-        {selectedApartments.map((apartment, index) => (
+        {favoritesState.favoriteList.map((apartment, index) => (
           <li key={index}>
-            {removeEnabled && (
+            {favoritesState.removeEnabled && (
               <input
                 type="checkbox"
                 checked={apartment.selected}
@@ -55,5 +85,3 @@ export default function Favorites({
     <h1>Select favorites before coming here</h1>
   );
 }
-
-

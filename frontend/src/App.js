@@ -11,40 +11,44 @@ import {
   fetchOpreationsMaxuim,
   fetchOpreationBetweenPriceRange,
   fetchOpreationNumberOfApartments,
-  updateApartmentsDataAPI
+  updateApartmentsDataAPI,
+  fetchOpreationGetApartmentByIndex
 } from "./ApiHandler";
 
 export default function App() {
-  const [apartmentsForMainPage, setApartmentsForMainPage] = useState([]);
-  const [submitedRequest, setSubmitedRequest] = useState({});
-  const [dataLoaded, setDataLoaded] = useState(false);
-  const [cityName, setCityName] = useState("");
-  const [apartmentRequestData, setApartmentRequestData] = useState([]);
-  const [selectedToFavorites, setSelectedToFavorites] = useState([]);
+  const [appState,setAppState] = useState({
+    apartmentsForMainPage:[],
+    submitedRequest:{},
+    dataLoaded:false,
+    cityName:"",
+    apartmentRequestData:[],
+    selectedToFavorites:[]
+  });
+  const handleChangeData = (fieldName,value)=>{
+    setAppState((prevState)=>({
+      ...prevState,
+      [fieldName]:value
+    }));
+  };
   useEffect(() => {
-    if (submitedRequest.Request) {
+    if (appState.submitedRequest.Request) {
       fetchDataBySubmitedForm({
-        setDataLoaded,
-        setApartmentsForMainPage,
-        setApartmentRequestData,
-        submitedRequest,
-        setCityName,
+        appState,
+        handleChangeData
       });
       return;
     }
     fetchDataFirstTime({
-      setDataLoaded,
-      setCityName,
-      setApartmentsForMainPage,
+      handleChangeData
     });
-  }, [submitedRequest]);
+  }, [appState.submitedRequest]);
   const handleNavbarClick = () => {
     const currentPath = window.location.pathname;
     if (currentPath === "/") {
     }
   };
   const handleSubmit = (formData) => {
-    setSubmitedRequest(formData);
+    handleChangeData("submitedRequest",formData);
   };
 
   return (
@@ -55,11 +59,11 @@ export default function App() {
           path="/"
           element={
             <MainPage
-              apprtmentData={apartmentsForMainPage}
+              apprtmentData={appState.apartmentsForMainPage}
               onSubmit={handleSubmit}
-              dataLoaded={dataLoaded}
-              cityName={cityName}
-              sendToFavorites={setSelectedToFavorites}
+              dataLoaded={appState.dataLoaded}
+              cityName={appState.cityName}
+              sendToFavorites={handleChangeData}
             />
           }
         />
@@ -67,9 +71,9 @@ export default function App() {
           path="max"
           element={
             <OpeartionsPage
-              cityName={cityName}
+              cityName={appState.cityName}
               onSubmit={handleSubmit}
-              apartmentData={apartmentRequestData}
+              apartmentData={appState.apartmentRequestData}
             />
           }
         />
@@ -77,8 +81,8 @@ export default function App() {
           path="favorites"
           element={
             <Favorites
-              selectedApartments={selectedToFavorites}
-              setSelectedToFavorites={setSelectedToFavorites}
+              selectedApartments={appState.selectedToFavorites}
+              setSelectedToFavorites={handleChangeData}
             />
           }
         ></Route>
@@ -88,74 +92,81 @@ export default function App() {
 }
 
 async function fetchDataFirstTime({
-  setDataLoaded,
-  setCityName,
-  setApartmentsForMainPage,
+  handleChangeData
+  
 }) {
   try {
-    setDataLoaded(true);
+    handleChangeData("dataLoaded",true);
     const data = await fetchFirstData();
-    setCityName("TelAviv");
-    setApartmentsForMainPage(data);
+    handleChangeData("cityName","TelAviv");
+    handleChangeData("apartmentsForMainPage",data);
   } catch (error) {
     console.error(error);
   } finally {
-    setDataLoaded(false);
+    handleChangeData("dataLoaded",false);
   }
 }
 
 async function fetchDataBySubmitedForm({
-  setDataLoaded,
-  setCityName,
-  setApartmentsForMainPage,
-  setApartmentRequestData,
-  submitedRequest,
+  appState,
+  handleChangeData
 }) {
   try {
-    setDataLoaded(true);
-    switch (submitedRequest.Request) {
+    handleChangeData("dataLoaded",true);
+    switch (appState.submitedRequest.Request) {
       case "table":
-        setCityName(submitedRequest.citySelected);
-        const tableData = await fetchMainPageData(submitedRequest);
-        setApartmentsForMainPage(tableData);
+        handleChangeData("cityName",appState.submitedRequest.citySelected);
+        const tableData = await fetchMainPageData(appState.submitedRequest);
+        handleChangeData("apartmentsForMainPage",tableData);
         break;
       case "minimum":
         const minimumData = await fetchOpreationsMiniuim();
-        setApartmentRequestData(minimumData);
+        handleChangeData("apartmentRequestData",minimumData);
         break;
       case "maximum":
         const maxuimData = await fetchOpreationsMaxuim();
-        setApartmentRequestData(maxuimData);
+        handleChangeData("apartmentRequestData",maxuimData);
         break;
       case "price-between":
         const paramsPriceBetween = {
-          minPrice: submitedRequest.minPrice,
-          maxPrice: submitedRequest.maxPrice,
+          minPrice: appState.submitedRequest.minPrice,
+          maxPrice: appState.submitedRequest.maxPrice,
         };
         const priceRange = await fetchOpreationBetweenPriceRange(
           paramsPriceBetween
         );
-        setApartmentRequestData(priceRange);
+        handleChangeData("apartmentRequestData",priceRange);
         break;
       case "number-of-apartments":
         const paramsNumberOfApartments = {
-          numApartments: submitedRequest.numApartments,
+          numApartments: appState.submitedRequest.numApartments,
         };
         const numberOfApartments = await fetchOpreationNumberOfApartments(
           paramsNumberOfApartments
         );
-        setApartmentRequestData(numberOfApartments);
+        handleChangeData("apartmentRequestData",numberOfApartments);
+        break;
+      case "get-apartment-index":
+        const parmasApartmentsByIndex = appState.submitedRequest.numApartments;
+        const  apartmentByIndex = await fetchOpreationGetApartmentByIndex(parmasApartmentsByIndex);
+        handleChangeData("apartmentRequestData",apartmentByIndex);
+        handleChangeData("dataLoaded",false);
         break;
       case "update-value":
         const valueToUpdate = {
-          city:submitedRequest.city,
-          price:parseInt(submitedRequest.price),
-          size:submitedRequest.size,
-          rooms:parseInt(submitedRequest.rooms),
-          floor:submitedRequest.floor
+          city:appState.submitedRequest.city,
+          price:parseInt(appState.submitedRequest.price),
+          size:appState.submitedRequest.size,
+          rooms:parseInt(appState.submitedRequest.rooms),
+          floor:appState.submitedRequest.floor
         }
-        await updateApartmentsDataAPI(valueToUpdate,submitedRequest.index);
-        setDataLoaded(false);
+        const newApartments = [...appState.apartmentsForMainPage];
+        newApartments[appState.submitedRequest.index] = {
+          ...newApartments[appState.submitedRequest.index],
+          ...valueToUpdate
+        };
+        await updateApartmentsDataAPI(valueToUpdate,appState.submitedRequest.index);
+        handleChangeData("apartmentsForMainPage",newApartments)
           break;
       default:
         break;
@@ -164,6 +175,6 @@ async function fetchDataBySubmitedForm({
   } catch (error) {
     console.error(error);
   } finally {
-    setDataLoaded(false);
+    handleChangeData("dataLoaded",false);
   }
 }

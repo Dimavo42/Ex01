@@ -15,12 +15,23 @@ export default function MainPage({
   cityName,
   sendToFavorites,
 }) {
-  const [citySelected, setCitySelected] = useState("TelAviv");
-  const [minimumRoom, setMinimumRoom] = useState(2);
-  const [maximumRoom, setMaximumRoom] = useState(5);
-  const [minimumPrice, setMinimumPrice] = useState(1000000);
-  const [maximumPrice, setMaxiumumPrice] = useState(2500000);
-  const [numberPages, setNumberPages] = useState(3);
+
+
+  const [requestNewTable,setRequestNewTable] = useState({
+    citySelected:"TelAviv",
+    minimumRoom:2,
+    maximumRoom:5,
+    minimumPrice:1000000,
+    maximumPrice:2500000,
+    numberPages:3
+  });
+
+  const handleInputeChange = (fieldName,value)=>{
+    setRequestNewTable((prevState)=>({
+      ...prevState,
+      [fieldName]:value
+    }));
+  };
 
   const handleSubmited = (event) => {
     event.preventDefault();
@@ -29,15 +40,10 @@ export default function MainPage({
         alert("Data is loading wait until response ");
         return;
       }
-      validateInput(minimumPrice, maximumPrice, minimumRoom, maximumRoom);
+      validateInput(requestNewTable.minimumPrice, requestNewTable.maximumPrice, requestNewTable.minimumRoom, requestNewTable.maximumRoom);
       onSubmit({
         Request: "table",
-        citySelected,
-        minimumRoom,
-        maximumRoom,
-        minimumPrice,
-        maximumPrice,
-        numberPages,
+        ...requestNewTable
       });
     } catch (error) {
       alert("Invalid input");
@@ -48,24 +54,23 @@ export default function MainPage({
       <h1>Search for differnet appertments</h1>
       <form onSubmit={handleSubmited}>
         <SelectCity
-          currentOperation={citySelected}
-          setCurrentOperation={setCitySelected}
+          currentOperation={requestNewTable.citySelected}
+          setCurrentOperation={handleInputeChange}
         />
         <SelecteRoomSize
-          minimumRoom={minimumRoom}
-          maximumRoom={maximumRoom}
-          setMinimumRoom={setMinimumRoom}
-          setMaximumRoom={setMaximumRoom}
+          minimumRoom={requestNewTable.minimumRoom}
+          maximumRoom={requestNewTable.maximumRoom}
+          setInputChange={handleInputeChange}
+
         />
         <SelectePriceRange
-          minimumPrice={minimumPrice}
-          maximumPrice={maximumPrice}
-          setMinimumPrice={setMinimumPrice}
-          setMaxiumumPrice={setMaxiumumPrice}
+          minimumPrice={requestNewTable.minimumPrice}
+          maximumPrice={requestNewTable.maximumPrice}
+          setInputChange={handleInputeChange}
         />
         <SelecteNumberOfPages
-          numberPages={numberPages}
-          setNumberPages={setNumberPages}
+          numberPages={requestNewTable.numberPages}
+          setInputChange={handleInputeChange}
         />
         <input type="submit" value="Search"></input>
       </form>
@@ -86,7 +91,7 @@ function SelectCity({ currentOperation, setCurrentOperation }) {
       <label htmlFor="select-city">Chooese City</label>
       <select
         value={currentOperation}
-        onChange={(event) => setCurrentOperation(event.target.value)}
+        onChange={(event) => setCurrentOperation("citySelected",event.target.value)}
       >
         <option value="TelAviv">TelAviv</option>
         <option value="RishonLezion">Rishon-Lezion</option>
@@ -100,8 +105,7 @@ function SelectCity({ currentOperation, setCurrentOperation }) {
 function SelecteRoomSize({
   minimumRoom,
   maximumRoom,
-  setMinimumRoom,
-  setMaximumRoom,
+  setInputChange
 }) {
   return (
     <div className="select-room-size">
@@ -110,14 +114,14 @@ function SelecteRoomSize({
         id="minimum-rooms-input"
         type="number"
         value={minimumRoom}
-        onChange={(event) => setMinimumRoom(event.target.value)}
+        onChange={(event) => setInputChange("minimumRoom",parseInt(event.target.value))}
       ></input>
       <label htmlFor="select-room-size">maxiumum rooms</label>
       <input
         id="maximum-rooms-input"
         type="number"
         value={maximumRoom}
-        onChange={(event) => setMaximumRoom(event.target.value)}
+        onChange={(event) => setInputChange("maximumRoom",parseInt(event.target.value))}
       ></input>
     </div>
   );
@@ -126,8 +130,7 @@ function SelecteRoomSize({
 function SelectePriceRange({
   minimumPrice,
   maximumPrice,
-  setMinimumPrice,
-  setMaxiumumPrice,
+  setInputChange,
 }) {
   return (
     <div className="selecte-price-range">
@@ -136,20 +139,20 @@ function SelectePriceRange({
         id="minimum-price-input"
         type="number"
         value={minimumPrice}
-        onChange={(event) => setMinimumPrice(event.target.value)}
+        onChange={(event) => setInputChange("minimumPrice",parseInt(event.target.value))}
       ></input>
       <label htmlFor="selecte-price-range">maxiumum price</label>
       <input
         id="maximum-price-input"
         type="number"
         value={maximumPrice}
-        onChange={(event) => setMaxiumumPrice(event.target.value)}
+        onChange={(event) => setInputChange("maximumPrice",parseInt(event.target.value))}
       ></input>
     </div>
   );
 }
 
-function SelecteNumberOfPages({ numberPages, setNumberPages }) {
+function SelecteNumberOfPages({ numberPages, setInputChange }) {
   return (
     <div className="select-number-pages">
       <label htmlFor="selecte-number-pages">selecte-number-pages</label>
@@ -157,13 +160,8 @@ function SelecteNumberOfPages({ numberPages, setNumberPages }) {
         id="number-of-pages"
         type="number"
         value={numberPages}
-        onChange={(event) => setNumberPages(event.target.value)}
+        onChange={(event) => setInputChange("numberPages",parseInt(event.target.value))}
       ></input>
     </div>
   );
 }
-
-
-
-
-

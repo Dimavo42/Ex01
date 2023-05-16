@@ -61,7 +61,9 @@ def find_item(item_id: int)->bool:
 
 def get_item(item_id: int)->dict:
     global df
-    return df.loc[item_id].to_dict()
+    format_dict = {} 
+    format_dict[item_id] = df.loc[item_id].to_dict()
+    return format_dict
 
 
 def update_item(item_id: int, updated_item: dict):

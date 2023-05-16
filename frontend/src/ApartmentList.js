@@ -10,18 +10,30 @@ export default function ApartmentList({
   sendToFavorites,
   onSubmit
 }) {
-  const [apartments, setApartments] = useState([]);
-  const [selectSendFaviortesEnabled, setSendFaviortesEnabled] = useState(false);
-  const [selectedFaviortes, setSelectedFaviortes] = useState([]);
-  const [editIndex, setEditIndex] = useState(-1);
+  const[apartmentListProps,setApartmentListProps] = useState({
+    apartments:[],
+    selectSendFaviortesEnabled:false,
+    selectedFaviortes:[],
+    editIndex:-1,
+  });
+
+  const handleInputChange = (fieldName,value)=>{
+    setApartmentListProps((prevState)=>({
+      ...prevState,
+      [fieldName]:value
+    }));
+  }
 
   useEffect(() => {
-    setApartments(
-      apartmentsData.map((apartment) => ({
-        ...apartment,
-        selectedToFaviortes: false,
-      }))
-    );
+    const updateApart = apartmentsData.map((apartment)=>({
+      ...apartment,
+      selectedToFaviortes: false
+    }));
+    setApartmentListProps((prevState)=>({
+      ...prevState,
+      apartments:updateApart
+    }));
+    
   }, [apartmentsData]);
 
   const handleShowMap = (location) => {
@@ -30,16 +42,16 @@ export default function ApartmentList({
     window.location.href = googleMapsUrl;
   };
   const toggleSelectFaviortesEnabled = () => {
-    setSendFaviortesEnabled(!selectSendFaviortesEnabled);
+    handleInputChange("selectSendFaviortesEnabled",!apartmentListProps.selectSendFaviortesEnabled);
   };
   const handleValueChangeApartment = (index, field, value) => {
-    const updatedApartments = [...apartments];
+    const updatedApartments = [...apartmentListProps.apartments];
     updatedApartments[index][field] = value;
-    setApartments(updatedApartments);
+    handleInputChange("apartments",updatedApartments);
   };
 
   const handleSaveChangedApartment = (index) => {
-    const updateApartments = [...apartments];
+    const updateApartments = [...apartmentListProps.apartments];
     onSubmit({
       Request:"update-value",
       index: index,
@@ -49,36 +61,35 @@ export default function ApartmentList({
       rooms:updateApartments[index].rooms,
       floor:updateApartments[index].floor,
     });
-    setEditIndex(-1);
+    handleInputChange("apartments",updateApartments);
+    handleInputChange("editIndex",-1);
   }
 
-  
-
   const handleSelectApartment = (index) => {
-    const updatedApartments = [...apartments];
+    const updatedApartments = [...apartmentListProps.apartments];
     updatedApartments[index] = {
       ...updatedApartments[index],
       selectedToFaviortes: !updatedApartments[index].selectedToFaviortes,
     };
-    setApartments(updatedApartments);
+    handleInputChange("apartments",updatedApartments);
     const currentSelectedApartments = updatedApartments.filter((apartment) => {
       if (apartment.selectedToFaviortes) {
         return apartment;
       }
       return null;
     });
-    setSelectedFaviortes(currentSelectedApartments);
+    handleInputChange("selectedFaviortes",currentSelectedApartments);
   };
 
   const handleGetAllSelectedApartment = () => {
-    sendToFavorites(selectedFaviortes);
-    const updatedApartments = apartments.map((apartment) => {
+    sendToFavorites("selectedToFavorites",apartmentListProps.selectedFaviortes);
+    const updatedApartments = apartmentListProps.apartments.map((apartment) => {
       return {
         ...apartment,
-        selected: false,
+        selectedToFaviortes: false,
       };
     });
-    setApartments(updatedApartments);
+    handleInputChange("apartments",updatedApartments);
   };
 
   if (dataLoaded) {
@@ -91,11 +102,11 @@ export default function ApartmentList({
       <button
         className="btn-secondary"
         onClick={toggleSelectFaviortesEnabled}
-        disabled={editIndex !== -1}
+        disabled={apartmentListProps.editIndex !== -1}
       >
-        {selectSendFaviortesEnabled ? "Disable" : "Enable"} Select Option
+        {apartmentListProps.selectSendFaviortesEnabled ? "Disable" : "Enable"} Select Option
       </button>
-      {selectSendFaviortesEnabled && (
+      {apartmentListProps.selectSendFaviortesEnabled  && (
         <div>
           <button
             className="btn-secondary mr"
@@ -109,12 +120,12 @@ export default function ApartmentList({
         </div>
       )}
       {RenderTable(
-        apartments,
+        apartmentListProps.apartments,
         handleShowMap,
-        selectSendFaviortesEnabled,
+        apartmentListProps.selectSendFaviortesEnabled,
         handleSelectApartment,
-        setEditIndex,
-        editIndex,
+        handleInputChange,
+        apartmentListProps.editIndex,
         handleValueChangeApartment,
         handleSaveChangedApartment
       )}
@@ -239,7 +250,7 @@ function RenderTable(
                 ) : (
                   <button
                     disabled={selectEnabled}
-                    onClick={() => setEditIndex(index)}
+                    onClick={() => setEditIndex("editIndex",index)}
                   >
                     Edit
                   </button>
