@@ -1,10 +1,7 @@
 import requests
 from bs4 import BeautifulSoup as bs
-import pandas as pd
 import re
-
-
-
+from schema.apartment import Apartment
 
 
 def next_page(soup):
@@ -70,10 +67,12 @@ def remove_nonnumeric(s):
 
 
 def get_city(city):
-    dict_city={"TelAviv":"city=5000",
-               "Jerusalem":"city=3000",
-               "RishonLezion":"city=8300",
-               "Haifa":"city=4000"}
+    dict_city = {
+        "TelAviv": "city=5000",
+        "Jerusalem": "city=3000",
+        "RishonLezion": "city=8300",
+        "Haifa": "city=4000",
+    }
     return dict_city.get(city)
 
 
@@ -89,19 +88,6 @@ def create_url_parameters(params):
     return url
 
 
-
-
-
-def df_change_columes(df: pd.DataFrame):
-    df["rooms"] = df["rooms"].apply(remove_nonnumeric)
-    df["price"] = df["price"].apply(remove_nonnumeric)
-    df["price"] = df["price"].astype(int)
-    df["rooms"] = df["rooms"].astype(int)
-    return df
-
-
-
-
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36",
     "Referer": "https://www.yad2.co.il",
@@ -110,9 +96,7 @@ headers = {
 }
 
 
-
-
-def start_pulling_data(params:dict ={}):
+async def start_pulling_data(params: dict = {}):
     with requests.session() as session:
         url = create_url_parameters(params)
         respones = session.get(url, headers=headers)
@@ -130,18 +114,34 @@ def start_pulling_data(params:dict ={}):
             scrapping_info["rooms"].extend(info["rooms"])
             scrapping_info["floor"].extend(info["floor"])
             current_page += 1
-        df = pd.DataFrame(scrapping_info)
-        df = df_change_columes(df)
-        df.index.name = "index"
-        df.to_csv(params["citySelected"]+".csv")
-        return {"message": "Finshed"}
-
-
-
-dafult_url_parmaters = {"citySelected":"TelAviv",
-                        "minimumRoom":2,
-                        "maximumRoom":5,
-                        "minimumPrice":1000000,
-                        "maximumPrice":3000000,
-                        "numberPages":5}
-start_pulling_data(dafult_url_parmaters)
+        scrapping_info["rooms"] = [
+            remove_nonnumeric(room) for room in scrapping_info["rooms"]
+        ]
+        scrapping_info["price"] = [
+            remove_nonnumeric(price) for price in scrapping_info["price"]
+        ]
+        list_apartments = []
+        for (
+            apartment_city,
+            apartment_floor,
+            apartment_price,
+            apartment_room,
+            apartment_size,
+        ) in zip(
+            scrapping_info["city"],
+            scrapping_info["floor"],
+            scrapping_info["price"],
+            scrapping_info["rooms"],
+            scrapping_info["size"],
+        ):
+            list_apartments.append(
+                Apartment(
+                    adresss=params["citySelected"],
+                    city=apartment_city,
+                    price=apartment_price,
+                    size=apartment_size,
+                    floor=apartment_floor,
+                    rooms=apartment_room,
+                )
+            )
+        return list_apartments

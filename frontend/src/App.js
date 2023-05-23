@@ -12,35 +12,61 @@ import {
   fetchOpreationBetweenPriceRange,
   fetchOpreationNumberOfApartments,
   updateApartmentsDataAPI,
-  fetchOpreationGetApartmentByIndex
+  fetchOpreationGetApartmentByIndex,
 } from "./ApiHandler";
 
 export default function App() {
-  const [appState,setAppState] = useState({
-    apartmentsForMainPage:[],
-    submitedRequest:{},
-    dataLoaded:false,
-    cityName:"",
-    apartmentRequestData:[],
-    selectedToFavorites:[]
+  const [appState, setAppState] = useState({
+    apartmentsForMainPage: [],
+    submitedRequest: {},
+    dataLoaded: false,
+    cityAvailable: [],
+    apartmentRequestData: [],
+    selectedToFavorites: [],
   });
-  const handleChangeData = (fieldName,value)=>{
-    setAppState((prevState)=>({
+  const handleChangeData = (fieldName, value) => {
+    if (
+      fieldName === "selectedToFavorites" &&
+      appState.selectedToFavorites.length > 0
+    ) {
+        const filterItems = appState.selectedToFavorites.filter((apartment) => {
+          for (const obj of value) {
+            if (obj._id === apartment._id) {
+              return false; // Exclude the apartment from the filtered array
+            }
+          }
+          return true; // Include the apartment in the filtered array
+        });
+      if (filterItems.length > 0) {
+          const temp = appState.apartmentsForMainPage.map((appartment) => {
+            for (const obj of filterItems) {
+              if (obj._id === appartment._id) {
+                return { ...appartment, selectedToFaviortes: false };
+              }
+            }
+            return appartment;
+          });
+          setAppState((prevState) => ({
+            ...prevState,
+            [fieldName]: value,
+            apartmentsForMainPage: temp,
+          }));
+        }
+    }
+    setAppState((prevState) => ({
       ...prevState,
-      [fieldName]:value
+      [fieldName]: value,
     }));
   };
   useEffect(() => {
     if (appState.submitedRequest.Request) {
       fetchDataBySubmitedForm({
         appState,
-        handleChangeData
+        handleChangeData,
       });
       return;
     }
-    fetchDataFirstTime({
-      handleChangeData
-    });
+    fetchDataFirstTime({ handleChangeData });
   }, [appState.submitedRequest]);
   const handleNavbarClick = () => {
     const currentPath = window.location.pathname;
@@ -48,7 +74,7 @@ export default function App() {
     }
   };
   const handleSubmit = (formData) => {
-    handleChangeData("submitedRequest",formData);
+    handleChangeData("submitedRequest", formData);
   };
 
   return (
@@ -62,7 +88,7 @@ export default function App() {
               apprtmentData={appState.apartmentsForMainPage}
               onSubmit={handleSubmit}
               dataLoaded={appState.dataLoaded}
-              cityName={appState.cityName}
+              citiesAvailable={appState.cityAvailable}
               sendToFavorites={handleChangeData}
             />
           }
@@ -71,7 +97,7 @@ export default function App() {
           path="max"
           element={
             <OpeartionsPage
-              cityName={appState.cityName}
+              citiesAvailable={appState.cityAvailable}
               onSubmit={handleSubmit}
               apartmentData={appState.apartmentRequestData}
             />
@@ -91,41 +117,43 @@ export default function App() {
   );
 }
 
-async function fetchDataFirstTime({
-  handleChangeData
-  
-}) {
+
+async function fetchDataFirstTime({ handleChangeData }) {
   try {
-    handleChangeData("dataLoaded",true);
+    handleChangeData("dataLoaded", true);
     const data = await fetchFirstData();
-    handleChangeData("cityName","TelAviv");
-    handleChangeData("apartmentsForMainPage",data);
+    const unique = uniqueCities(data);
+    handleChangeData("cityAvailable",unique );
+    handleChangeData("apartmentsForMainPage", data);
   } catch (error) {
     console.error(error);
   } finally {
-    handleChangeData("dataLoaded",false);
+    handleChangeData("dataLoaded", false);
   }
 }
 
-async function fetchDataBySubmitedForm({
-  appState,
-  handleChangeData
-}) {
+
+async function fetchDataBySubmitedForm({ appState, handleChangeData }) {
   try {
-    handleChangeData("dataLoaded",true);
+    handleChangeData("dataLoaded", true);
     switch (appState.submitedRequest.Request) {
       case "table":
-        handleChangeData("cityName",appState.submitedRequest.citySelected);
+        handleChangeData(
+          "cityAvailable",
+          appState.submitedRequest.citySelected
+        );
         const tableData = await fetchMainPageData(appState.submitedRequest);
-        handleChangeData("apartmentsForMainPage",tableData);
+        const unique = uniqueCities(tableData);
+        handleChangeData("cityAvailable",unique );
+        handleChangeData("apartmentsForMainPage", tableData);
         break;
       case "minimum":
         const minimumData = await fetchOpreationsMiniuim();
-        handleChangeData("apartmentRequestData",minimumData);
+        handleChangeData("apartmentRequestData", minimumData);
         break;
       case "maximum":
         const maxuimData = await fetchOpreationsMaxuim();
-        handleChangeData("apartmentRequestData",maxuimData);
+        handleChangeData("apartmentRequestData", maxuimData);
         break;
       case "price-between":
         const paramsPriceBetween = {
@@ -135,7 +163,7 @@ async function fetchDataBySubmitedForm({
         const priceRange = await fetchOpreationBetweenPriceRange(
           paramsPriceBetween
         );
-        handleChangeData("apartmentRequestData",priceRange);
+        handleChangeData("apartmentRequestData", priceRange);
         break;
       case "number-of-apartments":
         const paramsNumberOfApartments = {
@@ -144,30 +172,41 @@ async function fetchDataBySubmitedForm({
         const numberOfApartments = await fetchOpreationNumberOfApartments(
           paramsNumberOfApartments
         );
-        handleChangeData("apartmentRequestData",numberOfApartments);
+        handleChangeData("apartmentRequestData", numberOfApartments);
         break;
-      case "get-apartment-index":
-        const parmasApartmentsByIndex = appState.submitedRequest.numApartments;
-        const  apartmentByIndex = await fetchOpreationGetApartmentByIndex(parmasApartmentsByIndex);
-        handleChangeData("apartmentRequestData",apartmentByIndex);
-        handleChangeData("dataLoaded",false);
+      case "get-apartments-by-city":
+        console.log(appState.submitedRequest.cityWanted);
+        const parmasApartmentsByCity = appState.submitedRequest.cityWanted;
+        const filterApartmentsByCity = appState.apartmentsForMainPage.filter((apartment)=>{
+          if(apartment.adresss ===parmasApartmentsByCity ){
+            return true;
+          }
+          return false;
+        });
+        handleChangeData("apartmentRequestData",filterApartmentsByCity);
         break;
       case "update-value":
         const valueToUpdate = {
-          city:appState.submitedRequest.city,
-          price:parseInt(appState.submitedRequest.price),
-          size:appState.submitedRequest.size,
-          rooms:parseInt(appState.submitedRequest.rooms),
-          floor:appState.submitedRequest.floor
-        }
-        const newApartments = [...appState.apartmentsForMainPage];
-        newApartments[appState.submitedRequest.index] = {
-          ...newApartments[appState.submitedRequest.index],
-          ...valueToUpdate
+          city: appState.submitedRequest.city,
+          price: parseInt(appState.submitedRequest.price),
+          size: appState.submitedRequest.size,
+          rooms: parseInt(appState.submitedRequest.rooms),
+          floor: appState.submitedRequest.floor,
         };
-        await updateApartmentsDataAPI(valueToUpdate,appState.submitedRequest.index);
-        handleChangeData("apartmentsForMainPage",newApartments)
-          break;
+        const newApartments = appState.apartmentsForMainPage.map(
+          (appartment) => {
+            if (appartment._id === appState.submitedRequest._id) {
+              return { ...appartment, ...valueToUpdate };
+            }
+            return appartment;
+          }
+        );
+        await updateApartmentsDataAPI(
+          valueToUpdate,
+          appState.submitedRequest._id
+        );
+        handleChangeData("apartmentsForMainPage", newApartments);
+        break;
       default:
         break;
       // handle default case
@@ -175,6 +214,15 @@ async function fetchDataBySubmitedForm({
   } catch (error) {
     console.error(error);
   } finally {
-    handleChangeData("dataLoaded",false);
+    handleChangeData("dataLoaded", false);
   }
+}
+
+
+function uniqueCities(cities){
+  const numberOfCities = cities.map((apartment) => {
+    return apartment.adresss;
+  });
+  const uniqueCities = [...new Set(numberOfCities)];
+  return uniqueCities;
 }

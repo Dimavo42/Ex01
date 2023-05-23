@@ -32,6 +32,7 @@ export default function Favorites({
   }
 
   const handleRemoveFromFavorites = () => {
+
     const filteredApartments = favoritesState.favoriteList.filter(
       (apartment) => !apartment.selected
     );
@@ -40,6 +41,7 @@ export default function Favorites({
       favoriteList:filteredApartments,
       removeEnabled:!prevState.removeEnabled
     }));
+
   };
 
   const handleCheckboxChange = (index) => {

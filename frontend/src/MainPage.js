@@ -12,7 +12,7 @@ export default function MainPage({
   apprtmentData,
   onSubmit,
   dataLoaded,
-  cityName,
+  citiesAvailable,
   sendToFavorites,
 }) {
 
@@ -77,7 +77,7 @@ export default function MainPage({
       <ApartmentList
         apartmentsData={apprtmentData}
         dataLoaded={dataLoaded}
-        cityName={cityName}
+        citiesAvailable={citiesAvailable}
         sendToFavorites={sendToFavorites}
         onSubmit={onSubmit}
       />
@@ -165,3 +165,8 @@ function SelecteNumberOfPages({ numberPages, setInputChange }) {
     </div>
   );
 }
+
+
+
+
+

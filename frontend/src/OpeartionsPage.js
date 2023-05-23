@@ -2,14 +2,15 @@ import React, { useState, useEffect } from 'react';
 import './OpeartionsPage.css';
 import './Table.css';
 
-export default function OpeartionsPage({cityName,onSubmit,apartmentData}){
+export default function OpeartionsPage({citiesAvailable,onSubmit,apartmentData}){
     const [opeartionsPageProps,setOpeartionsPageProps] =useState({
       appData:[],
       isRequestGivin:"",
       currentOperation:"minimum",
       minPrice:0,
       maxPrice:0,
-      numApartments:0
+      numberOfApartments:0,
+      cityWanted:""
     });
 
     useEffect(()=>{
@@ -18,6 +19,7 @@ export default function OpeartionsPage({cityName,onSubmit,apartmentData}){
         appData:apartmentData
       }));
     },[apartmentData]);
+
     const handleInputeChange = (fieldName,value)=>{
       setOpeartionsPageProps((prevState)=>({
         ...prevState,
@@ -27,16 +29,17 @@ export default function OpeartionsPage({cityName,onSubmit,apartmentData}){
 
     const handleSubmit = (event)=>{
         event.preventDefault();
+        
         if (opeartionsPageProps.currentOperation === "price-between" && (opeartionsPageProps.minPrice > opeartionsPageProps.maxPrice)) {
             alert("Please select a valid price range");
             return;
-        }
+        } 
         onSubmit({
             "Request": opeartionsPageProps.currentOperation,
-            "cityName": cityName,
             "minPrice": opeartionsPageProps.minPrice,
             "maxPrice": opeartionsPageProps.maxPrice,
-            "numApartments":opeartionsPageProps.numApartments
+            "numApartments":opeartionsPageProps.numberOfApartments,
+            "cityWanted":opeartionsPageProps.cityWanted
         });
         handleInputeChange("isRequestGivin",opeartionsPageProps.currentOperation);
     };
@@ -44,7 +47,9 @@ export default function OpeartionsPage({cityName,onSubmit,apartmentData}){
     <div className="max-min-container">
             <form>
                 <div>
-                    <label htmlFor="city-name">Current city: {cityName}</label>
+                    <label htmlFor="city-name">Cities available:
+                    {citiesAvailable.map((city, index) => <div key={index}>{city}</div>)}
+                    </label>
                     <br/>
                     <label>You can search for this set choose what you want</label>
                     <SelectOperation
@@ -60,14 +65,14 @@ export default function OpeartionsPage({cityName,onSubmit,apartmentData}){
                     )}
                       {opeartionsPageProps.currentOperation === "number-of-apartments" && (
                         <NumberOfApartments 
-                        numApartments={opeartionsPageProps.numApartments} 
+                        numApartments={opeartionsPageProps.numberOfApartments} 
                         setNumApartments={handleInputeChange}
                       />
                     )}
-                    {opeartionsPageProps.currentOperation === "get-apartment-index" && (
-                      <GetNumberOfApartmentsByIndex
-                      numApartments={opeartionsPageProps.numApartments} 
-                      setNumApartments={handleInputeChange}/>
+                    {opeartionsPageProps.currentOperation === "get-apartments-by-city" && (
+                      <GetApartmentsByCity
+                      citiesAvailable={citiesAvailable}
+                      cityWanted={handleInputeChange}/>
                     )
 
                     }
@@ -120,6 +125,8 @@ function RenderTable(apartments){
 }
 
 
+
+
 function SelectOperation({ currentOperation, setCurrentOperation }) {
     return (
       <div className="select-operation">
@@ -132,7 +139,7 @@ function SelectOperation({ currentOperation, setCurrentOperation }) {
           <option value="maximum">maximum</option>
           <option value="price-between">price-between</option>
           <option value="number-of-apartments">number-of-apartments</option>
-          <option value="get-apartment-index">get-apartment-by-index</option>
+          <option value="get-apartments-by-city">get-apartments-by-city</option>
         </select>
       </div>
     );
@@ -175,14 +182,34 @@ function NumberOfApartments({ numApartments, setNumApartments }) {
   }
 
 
-function GetNumberOfApartmentsByIndex({numApartments,setNumApartments}){
-  return(<div>
-     <label htmlFor="apartment-by-index">apartment-by-index:</label>
-     <input
-     type="number"
-     id="apartment-by-index"
-     value={numApartments}
-     onChange={(event)=>setNumApartments("numApartments",parseInt(event.target.value))}/>
-  </div>);
-
+function GetApartmentsByCity({citiesAvailable,cityWanted}){
+  const [selectedCity, setSelectedCity] = useState(citiesAvailable[0]);
+  const handleChange = (event) => {
+    setSelectedCity(event.target.value);
+    cityWanted("cityWanted",event.target.value);
+  };
+  return(
+    <div>
+      <label htmlFor="apartments-by-city">Select</label>
+        <div className="select-operation">
+        <select value={selectedCity} onChange={handleChange}>
+          {citiesAvailable.map((city, index) => (
+            <option key={index} value={city}>{city}</option>
+          ))}
+        </select>
+      </div>
+    </div>
+  );
 }
+
+
+
+
+
+  
+
+
+
+
+
+

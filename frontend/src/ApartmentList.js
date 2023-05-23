@@ -6,34 +6,36 @@ import { Link } from "react-router-dom";
 export default function ApartmentList({
   apartmentsData,
   dataLoaded,
-  cityName,
+  citiesAvailable,
   sendToFavorites,
-  onSubmit
+  onSubmit,
 }) {
-  const[apartmentListProps,setApartmentListProps] = useState({
-    apartments:[],
-    selectSendFaviortesEnabled:false,
-    selectedFaviortes:[],
-    editIndex:-1,
+  const [apartmentListProps, setApartmentListProps] = useState({
+    apartments: [],
+    selectSendFaviortesEnabled: false,
+    selectedFaviortes: [],
+    editIndex: -1,
   });
 
-  const handleInputChange = (fieldName,value)=>{
-    setApartmentListProps((prevState)=>({
+  const handleInputChange = (fieldName, value) => {
+    setApartmentListProps((prevState) => ({
       ...prevState,
-      [fieldName]:value
+      [fieldName]: value,
     }));
-  }
+  };
 
   useEffect(() => {
-    const updateApart = apartmentsData.map((apartment)=>({
-      ...apartment,
-      selectedToFaviortes: false
-    }));
-    setApartmentListProps((prevState)=>({
+    const checkApartment = apartmentsData.map((apartment) => {
+      if (apartment.selectedToFaviortes) {
+        return { ...apartment };
+      }
+      return { ...apartment, selectedToFaviortes: false };
+    });
+
+    setApartmentListProps((prevState) => ({
       ...prevState,
-      apartments:updateApart
+      apartments: checkApartment,
     }));
-    
   }, [apartmentsData]);
 
   const handleShowMap = (location) => {
@@ -42,28 +44,31 @@ export default function ApartmentList({
     window.location.href = googleMapsUrl;
   };
   const toggleSelectFaviortesEnabled = () => {
-    handleInputChange("selectSendFaviortesEnabled",!apartmentListProps.selectSendFaviortesEnabled);
+    handleInputChange(
+      "selectSendFaviortesEnabled",
+      !apartmentListProps.selectSendFaviortesEnabled
+    );
   };
   const handleValueChangeApartment = (index, field, value) => {
     const updatedApartments = [...apartmentListProps.apartments];
     updatedApartments[index][field] = value;
-    handleInputChange("apartments",updatedApartments);
+    handleInputChange("apartments", updatedApartments);
   };
 
   const handleSaveChangedApartment = (index) => {
     const updateApartments = [...apartmentListProps.apartments];
     onSubmit({
-      Request:"update-value",
-      index: index,
-      city:updateApartments[index].city,
-      price:updateApartments[index].price,
-      size:updateApartments[index].size,
-      rooms:updateApartments[index].rooms,
-      floor:updateApartments[index].floor,
+      Request: "update-value",
+      index: updateApartments[index].index,
+      _id: updateApartments[index]._id,
+      city: updateApartments[index].city,
+      price: updateApartments[index].price,
+      size: updateApartments[index].size,
+      rooms: updateApartments[index].rooms,
+      floor: updateApartments[index].floor,
     });
-    handleInputChange("apartments",updateApartments);
-    handleInputChange("editIndex",-1);
-  }
+    handleInputChange("editIndex", -1);
+  };
 
   const handleSelectApartment = (index) => {
     const updatedApartments = [...apartmentListProps.apartments];
@@ -71,42 +76,43 @@ export default function ApartmentList({
       ...updatedApartments[index],
       selectedToFaviortes: !updatedApartments[index].selectedToFaviortes,
     };
-    handleInputChange("apartments",updatedApartments);
-    const currentSelectedApartments = updatedApartments.filter((apartment) => {
-      if (apartment.selectedToFaviortes) {
-        return apartment;
-      }
-      return null;
-    });
-    handleInputChange("selectedFaviortes",currentSelectedApartments);
+    handleInputChange("apartments", updatedApartments);
   };
-
   const handleGetAllSelectedApartment = () => {
-    sendToFavorites("selectedToFavorites",apartmentListProps.selectedFaviortes);
-    const updatedApartments = apartmentListProps.apartments.map((apartment) => {
-      return {
-        ...apartment,
-        selectedToFaviortes: false,
-      };
-    });
-    handleInputChange("apartments",updatedApartments);
+    const currentSelectedApartments = apartmentListProps.apartments.filter(
+      (apartment) => {
+        if (apartment.selectedToFaviortes) {
+          return true;
+        }
+        return false;
+      }
+    );
+    handleInputChange("selectedFaviortes", currentSelectedApartments);
+    sendToFavorites("selectedToFavorites", currentSelectedApartments);
+    sendToFavorites("apartmentsForMainPage", apartmentListProps.apartments);
+    handleInputChange(
+      "selectSendFaviortesEnabled",
+      !apartmentListProps.selectSendFaviortesEnabled
+    );
   };
-
   if (dataLoaded) {
-    return <h1>Loading {cityName}</h1>;
+    return <h1>Loading</h1>;
   }
-
   return (
     <div className="select-container">
-      <h1>List of apartments for {cityName}</h1>
+      <h1>List of apartments for cities:
+      {
+        citiesAvailable.map((city, index) => <div key={index}>{city}</div>)}
+        </h1>
       <button
         className="btn-secondary"
         onClick={toggleSelectFaviortesEnabled}
         disabled={apartmentListProps.editIndex !== -1}
       >
-        {apartmentListProps.selectSendFaviortesEnabled ? "Disable" : "Enable"} Select Option
+        {apartmentListProps.selectSendFaviortesEnabled ? "Disable" : "Enable"}{" "}
+        Select Option
       </button>
-      {apartmentListProps.selectSendFaviortesEnabled  && (
+      {apartmentListProps.selectSendFaviortesEnabled && (
         <div>
           <button
             className="btn-secondary mr"
@@ -143,12 +149,21 @@ function RenderTable(
   handleValueChangeApartment,
   handleSaveChangedApartment
 ) {
+  const favoritesApartments = apartments.filter((apartment) => {
+    if (apartment.selectedToFaviortes) {
+      return apartment;
+    }
+    return null;
+  });
   return (
     <div className="table-container">
       <table>
         <thead>
           <tr>
             {selectEnabled && <th className="sticky-header">Selected</th>}
+            {favoritesApartments.length > 0 && (
+              <th className="sticky-header">Favorites</th>
+            )}
             <th className="sticky-header">#</th>
             <th className="sticky-header">City</th>
             <th className="sticky-header">Price</th>
@@ -171,6 +186,8 @@ function RenderTable(
                   />
                 </td>
               )}
+              {favoritesApartments.length > 0 &&
+                (apartment.selectedToFaviortes ? <td>F</td> : <td></td>)}
               <td>{index + 1}</td>
               <td>
                 {editIndex === index ? (
@@ -244,13 +261,13 @@ function RenderTable(
               </td>
               <td>
                 {editIndex === index ? (
-                  <button onClick={() => handleSaveChangedApartment(index) }>
+                  <button onClick={() => handleSaveChangedApartment(index)}>
                     Save
                   </button>
                 ) : (
                   <button
                     disabled={selectEnabled}
-                    onClick={() => setEditIndex("editIndex",index)}
+                    onClick={() => setEditIndex("editIndex", index)}
                   >
                     Edit
                   </button>
@@ -263,8 +280,3 @@ function RenderTable(
     </div>
   );
 }
-
-
-
-
-
