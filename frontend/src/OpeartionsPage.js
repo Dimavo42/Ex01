@@ -10,7 +10,7 @@ export default function OpeartionsPage({citiesAvailable,onSubmit,apartmentData})
       minPrice:0,
       maxPrice:0,
       numberOfApartments:0,
-      cityWanted:""
+      cityWanted:citiesAvailable[0]
     });
 
     useEffect(()=>{
@@ -72,7 +72,7 @@ export default function OpeartionsPage({citiesAvailable,onSubmit,apartmentData})
                     {opeartionsPageProps.currentOperation === "get-apartments-by-city" && (
                       <GetApartmentsByCity
                       citiesAvailable={citiesAvailable}
-                      cityWanted={handleInputeChange}/>
+                      handleChangesOpreation={handleInputeChange}/>
                     )
 
                     }
@@ -175,27 +175,27 @@ function NumberOfApartments({ numApartments, setNumApartments }) {
           type="number" 
           id="num-apartments" 
           value={numApartments} 
-          onChange={(event)=>setNumApartments("numApartments",parseInt(event.target.value))}
+          onChange={(event)=>setNumApartments("numberOfApartments",parseInt(event.target.value))}
         />
       </div>
     );
   }
 
 
-function GetApartmentsByCity({citiesAvailable,cityWanted}){
+function GetApartmentsByCity({citiesAvailable,handleChangesOpreation}){
   const [selectedCity, setSelectedCity] = useState(citiesAvailable[0]);
   const handleChange = (event) => {
     setSelectedCity(event.target.value);
-    cityWanted("cityWanted",event.target.value);
+    handleChangesOpreation("cityWanted",event.target.value);
   };
   return(
     <div>
       <label htmlFor="apartments-by-city">Select</label>
         <div className="select-operation">
         <select value={selectedCity} onChange={handleChange}>
-          {citiesAvailable.map((city, index) => (
-            <option key={index} value={city}>{city}</option>
-          ))}
+        {citiesAvailable.map((city, index) => (
+          <option key={index} value={city}>{city}</option>
+        ))}
         </select>
       </div>
     </div>
@@ -207,8 +207,6 @@ function GetApartmentsByCity({citiesAvailable,cityWanted}){
 
 
   
-
-
 
 
 

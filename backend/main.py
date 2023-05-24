@@ -35,14 +35,24 @@ async def get_root():
 
 @app.on_event("startup")
 async def start_db():
-    await init_db()
-    apartments :list[Apartment] = await start_pulling_data({"citySelected":"TelAviv",
-                        "minimumRoom":2,
-                        "maximumRoom":5,
-                        "minimumPrice":1000000,
-                        "maximumPrice":3000000,
-                        "numberPages":1})
-    await Apartment.insert_many(apartments)
+    try:
+        await init_db()
+        apartments = await Apartment.find({}).to_list()
+        if not apartments:
+                apartments = await start_pulling_data({
+                    "citySelected": "TelAviv",
+                    "minimumRoom": 2,
+                    "maximumRoom": 5,
+                    "minimumPrice": 1000000,
+                    "maximumPrice": 3000000,
+                    "numberPages": 1
+                })
+                await Apartment.insert_many(apartments)
+    except Exception as e:
+         print(f"An error occurred: {e}")
+        
+       
+    
     
 
 async def init_db():
