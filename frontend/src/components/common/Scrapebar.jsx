@@ -1,5 +1,15 @@
 import React, { useState } from 'react';
 import { scrape } from '../../api/ApiHandler';
+import * as Yup from 'yup';
+
+const scrapeSchema = Yup.object().shape({
+  citySelected: Yup.string().min(1),
+  minimumRoom: Yup.number().min(1),
+  maximumRoom: Yup.number().min(1),
+  minimumPrice: Yup.number().min(1),
+  maximumPrice: Yup.number().min(1),
+  numberPages: Yup.number().min(1),
+})
 
 const Scrapebar = ({ fetchAllAppartments }) => {
   const [scrapeRequest, setScrapeRequest] = useState({
@@ -31,6 +41,7 @@ const Scrapebar = ({ fetchAllAppartments }) => {
       setLoading(true);
       try {
         validateInput(scrapeRequest.minimumPrice, scrapeRequest.maximumPrice, scrapeRequest.minimumRoom, scrapeRequest.maximumRoom);
+        await scrapeSchema.validate(scrapeRequest);
         scrape(scrapeRequest)
           .then(() => {
             setLoading(false);
