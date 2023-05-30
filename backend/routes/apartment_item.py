@@ -65,5 +65,9 @@ async def update_item(item_id: PydanticObjectId, request: UpdateApartment):
     return ItemResponse(status={"message": "Updated"}, method="POST")
 
 
+@router.get("/city/{city_name}")
+async def get_by_city_name(city_name: str):
+    apartments = await Apartment.find(Apartment.adresss == city_name).to_list()
+    return ItemResponse(status={"message": "Success"},number_of_items=apartments, method="GET")
 
 
